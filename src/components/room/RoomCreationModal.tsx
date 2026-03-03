@@ -18,6 +18,7 @@ export function RoomCreationModal({ onClose, onCreateRoom }: RoomCreationModalPr
   const [bookTitle, setBookTitle] = useState('')
   const [password, setPassword] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+  const [creationError, setCreationError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,6 +26,7 @@ export function RoomCreationModal({ onClose, onCreateRoom }: RoomCreationModalPr
     if (!roomName.trim()) return
 
     setIsCreating(true)
+    setCreationError(null)
 
     try {
       await onCreateRoom(
@@ -35,7 +37,7 @@ export function RoomCreationModal({ onClose, onCreateRoom }: RoomCreationModalPr
       )
       onClose()
     } catch (error) {
-      console.error('Failed to create room:', error)
+      setCreationError(error instanceof Error ? error.message : 'ルームの作成に失敗しました')
     } finally {
       setIsCreating(false)
     }
@@ -136,6 +138,13 @@ export function RoomCreationModal({ onClose, onCreateRoom }: RoomCreationModalPr
               maxLength={50}
             />
           </div>
+
+          {/* Error */}
+          {creationError && (
+            <div className="text-red-600 text-sm bg-red-50 rounded-lg px-4 py-2 border border-red-200">
+              {creationError}
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="flex gap-3 pt-2">

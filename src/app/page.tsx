@@ -23,14 +23,15 @@ export default function Home() {
     password?: string
   ) => {
     if (!userName.trim()) {
-      alert('ユーザー名を入力してください')
-      return
+      throw new Error('ユーザー名を入力してください')
     }
 
     const room = await createRoom(name, roomType, bookTitle, password)
-    if (room) {
-      router.push(`/room/${room.id}?user=${encodeURIComponent(userName)}`)
+    if (!room) {
+      throw new Error('ルームの作成に失敗しました。もう一度お試しください。')
     }
+
+    router.push(`/room/${room.id}?user=${encodeURIComponent(userName)}`)
   }
 
   const handleJoinRoom = async () => {

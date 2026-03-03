@@ -95,6 +95,19 @@ export function usePresence(roomId: string, userName: string, userId: string) {
         clearInterval(lastSeenTimerRef.current)
       }
 
+      // Before untracking, check if we're the last user.
+      // Handles SPA navigation (router.push) which does NOT fire beforeunload.
+      // Tab close is handled by sendBeacon in useRoomAutoDelete.
+      if (channel && isOnlineRef.current) {
+        const presenceState = channel.presenceState()
+        const remaining = Object.values(presenceState).reduce(
+          (count, presences) => count + (presences as any[]).length, 0
+        )
+        if (remaining <= 1) {
+          deleteRoom(roomId).catch(() => {})
+        }
+      }
+
       if (channel) {
         channel.untrack()
         supabase.removeChannel(channel)
