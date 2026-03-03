@@ -127,8 +127,8 @@ export function CampfireScene({ users, speechBubbles, currentUserId }: CampfireS
       )}
 
       {/* User count indicator */}
-      <div className="absolute top-4 right-4 bg-campfire-warm/60 rounded-full px-3 py-1 text-campfire-text text-sm border border-campfire-ember/30">
-        {users.length}/12 人
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-campfire-warm/60 rounded-full px-2 py-0.5 sm:px-3 sm:py-1 text-campfire-text text-xs sm:text-sm border border-campfire-ember/30">
+        {users.length}/12
       </div>
     </div>
   )

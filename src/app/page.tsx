@@ -44,10 +44,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-lobby-bg text-lobby-text">
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6 sm:py-12">
         {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-lobby-text mb-2">
+        <div className="text-center mb-6 sm:mb-10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-lobby-text mb-2">
             読書会チャット
           </h1>
           <p className="text-lobby-muted">

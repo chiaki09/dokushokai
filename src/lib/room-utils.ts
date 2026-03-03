@@ -1,22 +1,91 @@
 import { supabase, Room, RoomType } from './supabase'
 
-/**
- * Hash a password for storage (browser-compatible)
- */
-export async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+const PBKDF2_ITERATIONS = 100_000
+const SALT_LENGTH = 16 // bytes
+const HASH_LENGTH = 32 // bytes
+
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+function hexToBytes(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16)
+  }
+  return bytes
 }
 
 /**
- * Verify a password against a hash
+ * Hash a password using PBKDF2 with a random salt (browser-compatible).
+ * Returns "salt:hash" in hex format.
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const hashedPassword = await hashPassword(password)
-  return hashedPassword === hash
+export async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH))
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  )
+
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: salt.buffer as ArrayBuffer,
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    HASH_LENGTH * 8
+  )
+
+  return `${bytesToHex(salt)}:${bytesToHex(new Uint8Array(derivedBits))}`
+}
+
+/**
+ * Verify a password against a stored hash.
+ * Supports both new "salt:hash" format (PBKDF2) and legacy hex-only format (SHA-256).
+ */
+export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  const encoder = new TextEncoder()
+
+  if (storedHash.includes(':')) {
+    // New PBKDF2 format: "salt:hash"
+    const [saltHex, hashHex] = storedHash.split(':')
+    const salt = hexToBytes(saltHex)
+
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password),
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    )
+
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: salt.buffer as ArrayBuffer,
+        iterations: PBKDF2_ITERATIONS,
+        hash: 'SHA-256',
+      },
+      keyMaterial,
+      HASH_LENGTH * 8
+    )
+
+    return bytesToHex(new Uint8Array(derivedBits)) === hashHex
+  }
+
+  // Legacy SHA-256 format (no colon): fallback for existing rooms
+  const data = encoder.encode(password)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const legacyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  return legacyHash === storedHash
 }
 
 /**
@@ -39,7 +108,9 @@ export async function createRoom(
     current_mode: roomType === 'assigned-book' ? 'impression' as const : 'chat' as const,
   }
 
-  console.log('Creating room with data:', JSON.stringify(roomData))
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Creating room with data:', JSON.stringify(roomData))
+  }
 
   const { data, error } = await supabase
     .from('rooms')
@@ -48,7 +119,7 @@ export async function createRoom(
     .single()
 
   if (error) {
-    console.error('Supabase insert error:', JSON.stringify(error))
+    console.error('Room creation failed:', error.message)
   }
 
   return { data, error }

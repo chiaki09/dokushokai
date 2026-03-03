@@ -27,11 +27,11 @@ export function calculateCampfirePositions(
   const centerX = containerWidth / 2
   const centerY = containerHeight * 0.5
 
-  // Oval parameters - large enough to keep users clear of the fire
-  // but small enough to stay within the container (with 40px padding)
-  const radiusX = Math.min(containerWidth * 0.38, 220)
-  const radiusY = Math.min(containerHeight * 0.35, 140)
-  const padding = 40
+  // Oval parameters - scale down for small screens
+  const isSmallScreen = containerWidth < 640
+  const radiusX = Math.min(containerWidth * (isSmallScreen ? 0.32 : 0.38), isSmallScreen ? 140 : 220)
+  const radiusY = Math.min(containerHeight * (isSmallScreen ? 0.30 : 0.35), isSmallScreen ? 100 : 140)
+  const padding = isSmallScreen ? 30 : 40
 
   for (let i = 0; i < userCount; i++) {
     // Calculate angle for even distribution around the oval

@@ -28,11 +28,19 @@ CREATE POLICY "Allow read access to all rooms" ON public.rooms
 CREATE POLICY "Allow insert access for room creation" ON public.rooms
     FOR INSERT WITH CHECK (true);
 
--- Allow room creators to update their rooms (we'll handle this via application logic)
+-- [SECURITY IMPROVEMENT] Restrict UPDATE to only allow mode changes on non-expired rooms.
+-- Replace the permissive policy below with:
+--   CREATE POLICY "Allow update mode on active rooms" ON public.rooms
+--       FOR UPDATE USING (expires_at > NOW())
+--       WITH CHECK (expires_at > NOW());
 CREATE POLICY "Allow update access to all rooms" ON public.rooms
     FOR UPDATE USING (true);
 
--- Allow deletion of expired rooms (cleanup process)
+-- [SECURITY IMPROVEMENT] Restrict DELETE to expired rooms only for anon role.
+-- Server-side cleanup (service_role) can delete any room.
+-- Replace the permissive policy below with:
+--   CREATE POLICY "Allow delete only expired rooms" ON public.rooms
+--       FOR DELETE USING (expires_at < NOW());
 CREATE POLICY "Allow delete access to all rooms" ON public.rooms
     FOR DELETE USING (true);
 
@@ -59,5 +67,13 @@ $$;
 
 -- Grant necessary permissions
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
+-- [SECURITY IMPROVEMENT] Restrict anon permissions. Currently grants ALL.
+-- Recommended: GRANT SELECT, INSERT ON public.rooms TO anon;
+-- UPDATE/DELETE should be done via service_role (server-side API routes) or
+-- restricted by RLS policies above.
 GRANT ALL ON public.rooms TO anon, authenticated;
+-- [SECURITY IMPROVEMENT] cleanup_expired_rooms() is SECURITY DEFINER, so
+-- consider revoking EXECUTE from anon and only calling it from server-side:
+--   REVOKE EXECUTE ON FUNCTION cleanup_expired_rooms() FROM anon;
+--   GRANT EXECUTE ON FUNCTION cleanup_expired_rooms() TO authenticated;
 GRANT EXECUTE ON FUNCTION cleanup_expired_rooms() TO anon, authenticated;

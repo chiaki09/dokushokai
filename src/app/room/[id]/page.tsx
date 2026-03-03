@@ -125,8 +125,8 @@ export default function RoomPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Campfire Scene - 55% */}
-        <div className="flex-[55] relative min-h-0">
+        {/* Campfire Scene - 40% on mobile, 55% on desktop */}
+        <div className="flex-[40] sm:flex-[55] relative min-h-0">
           <CampfireScene
             users={users}
             speechBubbles={speechBubbles}
@@ -134,8 +134,8 @@ export default function RoomPage() {
           />
         </div>
 
-        {/* Chat System - 45% */}
-        <div className="flex-[45] border-t border-campfire-ember/20 min-h-0 flex flex-col overflow-hidden">
+        {/* Chat System - 60% on mobile, 45% on desktop */}
+        <div className="flex-[60] sm:flex-[45] border-t border-campfire-ember/20 min-h-0 flex flex-col overflow-hidden">
           <ChatSystem
             messages={messages}
             message={message}

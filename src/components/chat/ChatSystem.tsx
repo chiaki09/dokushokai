@@ -45,9 +45,9 @@ export function ChatSystem({
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-campfire-bg/50">
       {/* Chat header */}
-      <div className="px-4 py-3 border-b border-campfire-orange/20 bg-campfire-warm/20">
+      <div className="px-3 py-2 sm:px-4 sm:py-3 border-b border-campfire-orange/20 bg-campfire-warm/20">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium text-campfire-text">チャット</h3>
+          <h3 className="font-medium text-campfire-text text-sm sm:text-base">チャット</h3>
           <div className="flex items-center gap-2 text-xs">
             <div
               className={`w-2 h-2 rounded-full ${
@@ -62,7 +62,7 @@ export function ChatSystem({
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 sm:px-4 space-y-2 sm:space-y-3">
         {messages.length === 0 ? (
           <div className="text-center text-campfire-text/40 py-8">
             <div>まだメッセージがありません</div>
@@ -70,10 +70,10 @@ export function ChatSystem({
           </div>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className="flex items-start gap-3 group">
+            <div key={msg.id} className="flex items-start gap-2 sm:gap-3 group">
               {/* Avatar */}
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0 border"
+                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium flex-shrink-0 border"
                 style={{
                   backgroundColor: msg.color + '20',
                   borderColor: msg.color + '40',
@@ -93,7 +93,7 @@ export function ChatSystem({
                   >
                     {msg.user_name}
                   </span>
-                  <span className="text-xs text-campfire-text/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-campfire-text/30 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     {formatTimestamp(msg.timestamp)}
                   </span>
                 </div>
@@ -117,7 +117,7 @@ export function ChatSystem({
       </div>
 
       {/* Message input */}
-      <div className="px-4 py-3 border-t border-campfire-orange/20 bg-campfire-warm/20">
+      <div className="px-3 py-2 sm:px-4 sm:py-3 border-t border-campfire-orange/20 bg-campfire-warm/20">
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -126,14 +126,14 @@ export function ChatSystem({
             onChange={(e) => onMessageChange(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={!isConnected}
-            className="flex-1 px-3 py-2 bg-campfire-bg/80 border border-campfire-ember/30 rounded-md focus:outline-none focus:ring-1 focus:ring-campfire-ember text-campfire-text placeholder-campfire-text/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base bg-campfire-bg/80 border border-campfire-ember/30 rounded-md focus:outline-none focus:ring-1 focus:ring-campfire-ember text-campfire-text placeholder-campfire-text/30 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={isConnected ? "メッセージを入力..." : "接続中..."}
             maxLength={200}
           />
           <button
             onClick={onSendMessage}
             disabled={!message.trim() || !isConnected}
-            className="px-4 py-2 bg-campfire-ember hover:bg-campfire-ember/80 disabled:bg-campfire-warm disabled:cursor-not-allowed rounded-md font-medium transition-colors text-campfire-text"
+            className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-campfire-ember hover:bg-campfire-ember/80 disabled:bg-campfire-warm disabled:cursor-not-allowed rounded-md font-medium transition-colors text-campfire-text"
           >
             送信
           </button>

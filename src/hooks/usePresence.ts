@@ -121,21 +121,16 @@ export function usePresence(roomId: string, userName: string, userId: string) {
 }
 
 // Hook for tracking room auto-deletion when all users leave
-export function useRoomAutoDelete(roomId: string, isAlone: boolean, onRoomDeleted?: () => void) {
-  const isAloneRef = useRef(isAlone)
-  isAloneRef.current = isAlone
-
+export function useRoomAutoDelete(roomId: string, _isAlone: boolean, onRoomDeleted?: () => void) {
   useEffect(() => {
     if (!roomId) return
 
-    // When the last user closes the tab/navigates away, use sendBeacon to delete
+    // Always send beacon on tab close - the API will check if anyone remains
     const handleBeforeUnload = () => {
-      if (isAloneRef.current) {
-        navigator.sendBeacon(
-          `/api/room-cleanup`,
-          JSON.stringify({ roomId })
-        )
-      }
+      navigator.sendBeacon(
+        `/api/room-cleanup`,
+        JSON.stringify({ roomId })
+      )
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)

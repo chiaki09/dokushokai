@@ -17,7 +17,7 @@ export function UserAvatar({ user, isCurrentUser, position }: UserAvatarProps) {
       {/* Avatar circle with initial */}
       <div
         className={`
-          relative w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold
+          relative w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-lg font-bold
           border-2 transition-all duration-300 hover:scale-110
           ${isCurrentUser
             ? 'bg-campfire-warm'
@@ -33,15 +33,15 @@ export function UserAvatar({ user, isCurrentUser, position }: UserAvatarProps) {
 
         {/* Current user indicator */}
         {isCurrentUser && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-campfire-yellow rounded-full border-2 border-campfire-bg flex items-center justify-center">
-            <div className="w-2 h-2 bg-campfire-bg rounded-full"></div>
+          <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-campfire-yellow rounded-full border-2 border-campfire-bg flex items-center justify-center">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-campfire-bg rounded-full"></div>
           </div>
         )}
       </div>
 
       {/* User name */}
       <div
-        className="mt-2 text-sm font-medium text-center max-w-20 truncate px-2 py-1 rounded bg-campfire-bg/60 border"
+        className="mt-1 sm:mt-2 text-xs sm:text-sm font-medium text-center max-w-16 sm:max-w-20 truncate px-1.5 py-0.5 sm:px-2 sm:py-1 rounded bg-campfire-bg/60 border"
         style={{
           color: user.color,
           borderColor: user.color + '40'
